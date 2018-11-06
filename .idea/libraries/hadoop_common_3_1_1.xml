@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="hadoop-common-3.1.1">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../../../libraries/hadoop-3.1.1/share/hadoop/common/hadoop-common-3.1.1.jar!/" />
+      <root url="jar://E:/Software/Hadoop/hadoop-3.1.1/share/hadoop/common/hadoop-common-3.1.1.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
