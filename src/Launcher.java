@@ -14,21 +14,29 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Launcher {
 
+    static final String infantri = "infantri";
+    static final String reinforc = "reinforc";
+    static  final String brigad = "brigad";
+    static  final String fire = "fire";
+
+    static boolean containsTerm(String[] terms, String term)
+    {
+        for(int i = 0 ; i< terms.length;i++)
+            if(terms[i].equals(term))
+                return true;
+
+        return false;
+    }
+
     /**
      * The mapper will map each input as follows
      * key : term
      * value : map(article_id, score)
      */
-    public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
+    public static class QueryOneMapper extends Mapper<Object, Text, Text, Text> {
 
         private Text term = new Text();
         private Text article_id = new Text();
-
-        private final String infantri = "infantry";
-        private final String reinforc = "reinforc";
-        private final String brigad = "brigad";
-        private final String fire = "fire";
-
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -38,20 +46,23 @@ public class Launcher {
             this.term.set(inputs[1]);
             this.article_id.set(inputs[0]);
 
-            if(this.term.toString().equals(this.infantri)
-            || this.term.toString().equals(this.reinforc)
-            || this.term.toString().equals(this.brigad)
-            || this.term.toString().equals(this.fire))
+            if(this.term.toString().equals(infantri)
+            || this.term.toString().equals(reinforc)
+            || this.term.toString().equals(brigad)
+            || this.term.toString().equals(fire))
             {
-                context.write(this.term, this.article_id);
+                context.write(this.article_id, this.term);
             }
         }
     }
 
     /**
      * Reduce mapper results
+     * Query 1
+     *
+     * any term
      */
-    public static class IntSumReducer extends Reducer<Text, Text, Text, Text> {
+    public static class QueryOneReducer extends Reducer<Text, Text, Text, Text> {
         private Text result = new Text();
 
         @Override
@@ -62,13 +73,25 @@ public class Launcher {
 
             for (Text val : values) {
 
-                sum = new Text(sum.toString()+val.toString());
-
+                sum = new Text(sum.toString()+","+val.toString());
             }
 
-            result.set(sum);
-            context.write(key, result);
+            // check the sum , if fulfills condition, submit
+//            String[] terms = sum.toString().split(",");
+//
+//            if(containsTerm(terms, infantri) ||
+//            containsTerm(terms, reinforc) ||
+//                    containsTerm(terms, brigad) ||
+//                            containsTerm(terms,fire))
+//            {
+//
+//            }
+
+
+            context.write(key,sum);
         }
+
+
 
     }
 
@@ -78,9 +101,9 @@ public class Launcher {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "wordcount");
 
-        job.setMapperClass(TokenizerMapper.class);
+        job.setMapperClass(QueryOneMapper.class);
         // job.setCombinerClass(IntSumReducer.class); // enable to use 'local aggregation'
-        job.setReducerClass(IntSumReducer.class);
+        job.setReducerClass(QueryOneReducer.class);
 
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
