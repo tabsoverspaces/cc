@@ -1,12 +1,11 @@
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.MapWritable;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -15,12 +14,21 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class Launcher {
 
-    public static class TokenizerMapper extends Mapper<Object, Text, Text, MapWritable> {
+    /**
+     * The mapper will map each input as follows
+     * key : term
+     * value : map(article_id, score)
+     */
+    public static class TokenizerMapper extends Mapper<Object, Text, Text, Text> {
 
-        private final static IntWritable one = new IntWritable(1);
         private Text term = new Text();
         private Text article_id = new Text();
-        private Text score = new Text();
+
+        private final String infantri = "infantry";
+        private final String reinforc = "reinforc";
+        private final String brigad = "brigad";
+        private final String fire = "fire";
+
 
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
@@ -29,25 +37,35 @@ public class Launcher {
 
             this.term.set(inputs[1]);
             this.article_id.set(inputs[0]);
-            this.score.set(inputs[2]);
 
-            MapWritable map = new MapWritable();
-            map.put(this.article_id, this.score);
-
-            context.write(this.term, map);
+            if(this.term.toString().equals(this.infantri)
+            || this.term.toString().equals(this.reinforc)
+            || this.term.toString().equals(this.brigad)
+            || this.term.toString().equals(this.fire))
+            {
+                context.write(this.term, this.article_id);
+            }
         }
     }
 
-    public static class IntSumReducer extends Reducer<Text, IntWritable, Text, IntWritable> {
-        private IntWritable result = new IntWritable();
+    /**
+     * Reduce mapper results
+     */
+    public static class IntSumReducer extends Reducer<Text, Text, Text, Text> {
+        private Text result = new Text();
 
         @Override
-        public void reduce(Text key, Iterable<IntWritable> values, Context context)
+        public void reduce(Text key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
-            int sum = 0;
-            for (IntWritable val : values) {
-                sum += val.get();
+
+            Text sum = new Text();
+
+            for (Text val : values) {
+
+                sum = new Text(sum.toString()+"\n"+val.toString());
+
             }
+
             result.set(sum);
             context.write(key, result);
         }
@@ -56,8 +74,6 @@ public class Launcher {
 
     public static void main(String[] args) throws Exception {
 
-        String[] terms = {"infantri","reinforc", "brigad", "fire"};
-        String inputFile = "";
 
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "wordcount");
@@ -67,7 +83,7 @@ public class Launcher {
         job.setReducerClass(IntSumReducer.class);
 
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(IntWritable.class);
+        job.setOutputValueClass(Text.class);
 
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
