@@ -29,13 +29,13 @@ public class Launcher {
     public static void main(String[] args) throws Exception {
 
         Configuration conf = new Configuration();
-        Job job = Job.getInstance(conf, "wordcount");
 
         // timing
         long start = System.currentTimeMillis();
         long end = System.currentTimeMillis();
 
         /** Query 1 **/
+        Job job = Job.getInstance(conf, "query1");
         job.setMapperClass(Query1.QueryOneMapper.class);
         job.setReducerClass(Query1.QueryOneReducer.class);
         job.setOutputKeyClass(Text.class);
@@ -55,6 +55,7 @@ public class Launcher {
         /** Query 1 end **/
 
         /** Query 2 **/
+        job = Job.getInstance(conf,"query2");
         job.setMapperClass(Query2.QueryTwoMapper.class);
         job.setReducerClass(Query2.QueryTwoReducer.class);
         job.setOutputKeyClass(Text.class);
@@ -65,7 +66,7 @@ public class Launcher {
         start = System.currentTimeMillis();
         job.waitForCompletion(true);
         end = System.currentTimeMillis();
-        System.out.println("Query1 time taken : " + (end-start) + " ms");
+        System.out.println("Query2 time taken : " + (end-start) + " ms");
 
         // read line count
 
@@ -74,6 +75,7 @@ public class Launcher {
         /** Query 2 end **/
 
         /** Query 3 **/
+        job = Job.getInstance(conf,"query3");
         job.setMapperClass(Query3.QueryThreeMapper.class);
         job.setReducerClass(Query3.QueryThreeReducer.class);
         job.setOutputKeyClass(Text.class);
@@ -84,7 +86,7 @@ public class Launcher {
         start = System.currentTimeMillis();
         job.waitForCompletion(true);
         end = System.currentTimeMillis();
-        System.out.println("Query1 time taken : " + (end-start) + " ms");
+        System.out.println("Query3 time taken : " + (end-start) + " ms");
 
         // read line count
 

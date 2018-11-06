@@ -12,7 +12,7 @@ but not any of the stemmed keywords infantri, brigad, or fire.
 public class Query3 {
 
     /**
-     * Query2 mapper
+     * Query3 mapper
      */
     public static class QueryThreeMapper extends Mapper<Object, Text, Text, Text> {
 
@@ -28,9 +28,9 @@ public class Query3 {
             this.article_id.set(inputs[0]);
 
             if(this.term.toString().equals(Launcher.infantri)
-            || this.term.toString().equals(Launcher.reinforc)
-            || this.term.toString().equals(Launcher.brigad)
-            || this.term.toString().equals(Launcher.fire))
+                    || this.term.toString().equals(Launcher.reinforc)
+                    || this.term.toString().equals(Launcher.brigad)
+                    || this.term.toString().equals(Launcher.fire))
             {
                 context.write(this.article_id, this.term);
             }
@@ -38,7 +38,7 @@ public class Query3 {
     }
 
     /**
-     * Query 2 reducer
+     * Query 3 reducer
      */
     public static class QueryThreeReducer extends Reducer<Text, Text, Text, Text> {
         private Text result = new Text();
@@ -55,18 +55,16 @@ public class Query3 {
             }
 
             // check the sum , if fulfills condition, submit
-            String[] terms = sum.toString().split(",");
+            String[] terms = sum.toString().split(" ");
 
             if(Launcher.containsTerm(terms, Launcher.reinforc) &&
-                    (
-            !(Launcher.containsTerm(terms, Launcher.infantri)) &&
+                    (!(Launcher.containsTerm(terms, Launcher.infantri)) &&
                     !(Launcher.containsTerm(terms, Launcher.brigad)) &&
                             !(Launcher.containsTerm(terms,Launcher.fire))))
             {
-
+                context.write(key,sum);
             }
 
-            context.write(key,sum);
         }
 
     }
