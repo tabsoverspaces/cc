@@ -62,7 +62,7 @@ public class Launcher {
 
             for (Text val : values) {
 
-                sum = new Text(sum.toString()+"\n"+val.toString());
+                sum = new Text(sum.toString()+val.toString());
 
             }
 
