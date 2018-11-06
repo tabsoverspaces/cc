@@ -31,6 +31,10 @@ public class Launcher {
         Configuration conf = new Configuration();
         Job job = Job.getInstance(conf, "wordcount");
 
+        // timing
+        long start = System.currentTimeMillis();
+        long end = System.currentTimeMillis();
+
         /** Query 1 **/
         job.setMapperClass(Query1.QueryOneMapper.class);
         job.setReducerClass(Query1.QueryOneReducer.class);
@@ -39,7 +43,10 @@ public class Launcher {
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
+        start = System.currentTimeMillis();
         job.waitForCompletion(true);
+        end = System.currentTimeMillis();
+        System.out.println("Query1 time taken : " + (end-start) + " ms");
 
         // read line count
 
@@ -55,7 +62,10 @@ public class Launcher {
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[2]));
 
+        start = System.currentTimeMillis();
         job.waitForCompletion(true);
+        end = System.currentTimeMillis();
+        System.out.println("Query1 time taken : " + (end-start) + " ms");
 
         // read line count
 
@@ -71,7 +81,10 @@ public class Launcher {
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[3]));
 
+        start = System.currentTimeMillis();
         job.waitForCompletion(true);
+        end = System.currentTimeMillis();
+        System.out.println("Query1 time taken : " + (end-start) + " ms");
 
         // read line count
 
